@@ -1,8 +1,9 @@
 import { Address, TonClient, fromNano, Dictionary } from 'ton';
 import { API_TOKEN } from './secret';
 
-const wallet = Address.parse('EQCJO7qT3C3eiPTP9eeC7CXERZ0og4SUn8ztyLp_Sg252IGq');
-const JettonWalletSmartContractAdress = Address.parse('EQB5PkmgRaFh6UFrM8gb5YTEpCtJXa--TFHcJ_n8bmVnuZVv');
+// const wallet = Address.parse('EQCJO7qT3C3eiPTP9eeC7CXERZ0og4SUn8ztyLp_Sg252IGq');
+
+const JettonWalletSmartContractAddress = Address.parse('EQB5PkmgRaFh6UFrM8gb5YTEpCtJXa--TFHcJ_n8bmVnuZVv');
 
 export const client = new TonClient({
     endpoint: 'https://testnet.toncenter.com/api/v2/jsonRPC',
@@ -10,8 +11,10 @@ export const client = new TonClient({
 });
 
 async function main() {
+    const wallet = Address.parse(process.argv.slice(2)[0]);
+    
     var { stack } = await client.callGetMethod(
-        JettonWalletSmartContractAdress, 
+        JettonWalletSmartContractAddress, 
         'get_wallet_data'
     );
     let balance = stack.readBigNumber();
@@ -22,7 +25,7 @@ async function main() {
     console.log('balance', fromNano(balance));
     console.log('owner', owner);
     console.log('jetton', jetton);
-    // console.log('jetton_wallet_code', jetton_wallet_code1);
+    //console.log('jetton_wallet_code', jetton_wallet_code1);
 
     var { stack } = await client.callGetMethod(
         jetton, 
@@ -37,7 +40,7 @@ async function main() {
     console.log('total_supply', fromNano(total_supply));
     // console.log('mintable', mintable);
     console.log('admin_address', admin_address);
-    console.log('jetton_content', jetton_content.toBoc().toString());
+    //console.log('jetton_content', jetton_content.toBoc().toString());
     // console.log('jetton_wallet_code', jetton_wallet_code2);
 }
 
