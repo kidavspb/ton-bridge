@@ -1,8 +1,7 @@
-import { Address, TonClient, fromNano, Dictionary } from 'ton';
+import { Address, TonClient, fromNano, TupleBuilder } from 'ton';
 import { API_TOKEN } from './secret';
 
-const wallet = Address.parse('EQCJO7qT3C3eiPTP9eeC7CXERZ0og4SUn8ztyLp_Sg252IGq');
-const JettonWalletSmartContractAdress = Address.parse('EQB5PkmgRaFh6UFrM8gb5YTEpCtJXa--TFHcJ_n8bmVnuZVv');
+const jettonMasterContract = Address.parse('EQDJcHy2w-s3I3KXFtOThZa4W6bmzUBuQ0mjjiQVfd-y546W');
 
 export const client = new TonClient({
     endpoint: 'https://testnet.toncenter.com/api/v2/jsonRPC',
@@ -10,36 +9,34 @@ export const client = new TonClient({
 });
 
 async function main() {
-    var { stack } = await client.callGetMethod(
-        JettonWalletSmartContractAdress, 
-        'get_wallet_data'
-    );
-    let balance = stack.readBigNumber();
-    let owner = stack.readAddress();
-    let jetton = stack.readAddress();
-    let jetton_wallet_code1 = stack.readCell();
-    
-    console.log('balance', fromNano(balance));
-    console.log('owner', owner);
-    console.log('jetton', jetton);
-    // console.log('jetton_wallet_code', jetton_wallet_code1);
+    try {
+        const owner_address = new TupleBuilder()
+        owner_address.writeAddress(Address.parse(process.argv.slice(2)[0]))
 
-    var { stack } = await client.callGetMethod(
-        jetton, 
-        'get_jetton_data'
-    );
-    let total_supply = stack.readBigNumber();
-    let mintable = stack.readBigNumber();
-    let admin_address = stack.readAddress();
-    var jetton_content = stack.readCell();
-    let jetton_wallet_code2 = stack.readCell();
-    
-    console.log('total_supply', fromNano(total_supply));
-    // console.log('mintable', mintable);
-    console.log('admin_address', admin_address);
-    console.log('jetton_content', jetton_content.toBoc().toString());
-    // console.log('jetton_wallet_code', jetton_wallet_code2);
+        var { stack } = await client.callGetMethod(
+            jettonMasterContract, 
+            'get_wallet_address',
+            owner_address.build()
+        );
+        let jetton_wallet_address = stack.readAddress();
+        console.log('jetton_wallet_address', jetton_wallet_address);
+
+        var { stack } = await client.callGetMethod(
+            jetton_wallet_address, 
+            'get_wallet_data'
+        );
+        let balance = stack.readBigNumber();
+        let owner = stack.readAddress();
+        let jetton = stack.readAddress();
+        let jetton_wallet_code = stack.readCell();
+        
+        console.log('balance', fromNano(balance));
+        // console.log('owner', owner);
+        // console.log('jetton', jetton);
+        // console.log('jetton_wallet_code', jetton_wallet_code);
+    } catch (e) {
+        console.log("Something went wrong");
+    }
 }
-
 
 main()
