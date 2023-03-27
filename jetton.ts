@@ -1,5 +1,5 @@
-import { Address, TonClient, fromNano, Dictionary } from 'ton';
-import { API_TOKEN } from './secret';
+import { Address, TonClient, fromNano, Dictionary, Slice } from 'ton';
+import { API_TOKEN } from './secret1';
 
 // const wallet = Address.parse('EQCJO7qT3C3eiPTP9eeC7CXERZ0og4SUn8ztyLp_Sg252IGq');
 
